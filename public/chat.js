@@ -20,3 +20,7 @@ $('#signup form').submit(function() {
   $('#chatroom').show();
   return false
 });
+
+socket.on('lonely', function() {
+  $('#messages').append($('<li>').text("There are no other users in the queue yet. Waiting for someone to join..."));
+});

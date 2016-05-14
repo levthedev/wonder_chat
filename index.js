@@ -37,6 +37,7 @@ function joinRoom(socket) {
     rooms[socket.id] = room;
   } else {
     userQueue.push(socket);
+    socket.emit('lonely')
   }
 }
 
