@@ -12,7 +12,11 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
   socket.on('new message', function(msg) {
-    io.emit('new message', msg);
+    io.emit('new message', `${socket.username}: ${msg}`);
+  });
+
+  socket.on('add user', function (username) {
+    socket.username = username;
   });
 });
 
