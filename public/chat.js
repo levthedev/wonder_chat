@@ -3,6 +3,7 @@ var socket = io();
 $('#chatroom form').submit(function() {
   var msg = $('#message')
   socket.emit('new message', msg.val());
+  $('#messages').append($('<li>').text(`${socket.username}: ${msg.val()}`));
   msg.val('');
   return false;
 });
