@@ -17,18 +17,22 @@ io.on('connection', function(socket) {
 
   socket.on('new message', function(msg) {
     var room = rooms[socket.id];
-    socket.broadcast.to(room).emit('new message', `${socket.username}: ${msg}`);
+    io.in(room).emit('add message', `${socket.username}: ${msg}`);
   });
 
   socket.on('add user', function (username) {
     socket.username = username;
   });
+
+  socket.on('hop', function() {
+    joinRoom(socket);
+  })
 });
 
 function joinRoom(socket) {
   if (userQueue.length > 0) {
     var peer = userQueue.pop();
-    var room = socket.id + '#' + peer.id
+    var room = socket.id + '#' + peer.id;
 
     peer.join(room);
     socket.join(room);
@@ -37,7 +41,10 @@ function joinRoom(socket) {
     rooms[socket.id] = room;
   } else {
     userQueue.push(socket);
-    socket.emit('lonely')
+    socket.rooms.map(function(room) {
+      socket.leave(room)
+    })
+    socket.emit('lonely');
   }
 }
 
