@@ -26,6 +26,7 @@ io.on('connection', (socket) => {
       util.swapChatPeer(socket);
     } else if (util.userQueue[0] != socket) {
       util.disbandChatRoom(socket);
+      socket.emit('lonely');
     }
   })
 });

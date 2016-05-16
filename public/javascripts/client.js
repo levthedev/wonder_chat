@@ -10,11 +10,7 @@ $('#signup form').submit(() => {
 
 $('#chatroom form').submit(() => {
   var msg = $('#message').val();
-  if (checkForHop(msg)) {
-    socket.emit('hop')
-  } else {
-    socket.emit('new message', msg);
-  };
+  checkForHop(msg) ? socket.emit('hop') : socket.emit('new message', msg)
   $('#message').val('');
   return false;
 });
@@ -22,9 +18,7 @@ $('#chatroom form').submit(() => {
 socket.on('add message', (message) => {
   delay = parseDelay(message);
   scrubbedMessage = scrubMessage(message);
-  setTimeout(function() {
-    append(scrubbedMessage);
-  }, delay);
+  setTimeout(() => { append(scrubbedMessage) }, delay);
 });
 
 socket.on('lonely', () => {
