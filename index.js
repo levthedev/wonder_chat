@@ -4,48 +4,66 @@ var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var userQueue = []
-var rooms = {}
 
 app.use(express.static('public'));
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket) {
-  joinRoom(socket);
-
+io.on('connection', (socket) => {
   socket.on('new message', function(msg) {
-    var room = rooms[socket.id];
-    io.in(room).emit('add message', `${socket.username}: ${msg}`);
+    io.in(socket.room).emit('add message', `${socket.username}: ${msg}`);
   });
 
-  socket.on('add user', function (username) {
+  socket.on('add user', (username) => {
     socket.username = username;
+    joinRoom(socket);
   });
 
-  socket.on('hop', function() {
-    joinRoom(socket);
+  socket.on('hop', () => {
+    if (userQueue.length > 0 && userQueue[0] != socket) {
+      console.log(socket.username)
+      console.log(userQueue.map((u)=>{u.username}))
+      swapChatPeer(socket);
+    } else if (userQueue[0] != socket) {
+      socket.leave(socket.room);
+      socket.peer.leave(socket.peer.room);
+      userQueue.push(socket);
+      userQueue.push(socket.peer);
+    }
   })
 });
 
 function joinRoom(socket) {
   if (userQueue.length > 0) {
-    var peer = userQueue.pop();
-    var room = socket.id + '#' + peer.id;
-
-    peer.join(room);
-    socket.join(room);
-
-    rooms[peer.id] = room;
-    rooms[socket.id] = room;
+    assignPeers(socket);
+    io.in(room).emit('new room');
   } else {
     userQueue.push(socket);
-    socket.rooms.map(function(room) {
-      socket.leave(room)
-    })
     socket.emit('lonely');
   }
 }
 
-http.listen(3000, function(){});
+function assignPeers(socket) {
+  var peer = userQueue.shift();
+  var room = socket.username + '#' + peer.username;
+
+  peer.join(room);
+  socket.join(room);
+
+  socket.peer = peer;
+  peer.peer = socket;
+  socket.room = room;
+  peer.room = room;
+}
+
+function swapChatPeer(socket) {
+  socket.leave(socket.room);
+  socket.peer.leave(socket.room);
+  var oldPeer = socket.peer
+  joinRoom(socket);
+  userQueue.push(oldPeer);
+}
+
+http.listen(3000, () => {});
