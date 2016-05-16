@@ -2,7 +2,6 @@ var socket = io();
 
 $('#signup form').submit(() => {
   var username = $('#nickname').val();
-  socket.username = username;
   socket.emit('add user', username);
   $('#signup').fadeOut();
   $('#chatroom').show();
@@ -29,10 +28,6 @@ socket.on('add message', (message) => {
 });
 
 socket.on('lonely', () => {
-  var lonelyMessage = "There are no other users in the queue yet. Waiting for someone to join...";
+  var lonelyMessage = 'There are no other users in the queue. Waiting for someone to join...';
   append(lonelyMessage);
 });
-
-// socket.on('new room', () => {
-//   append(`${socket.peer.username.toUpperCase()} joined the room`);
-// })

@@ -4,7 +4,7 @@ function parseDelay(msg) {
 }
 
 function scrubMessage(msg) {
-  var delayed = msg.match(/\/delay \d+/)
+  var delayed = msg.match(/\/delay \d+/);
   return delayed ? msg.replace(delayed[0], '').trim() : msg
 }
 
